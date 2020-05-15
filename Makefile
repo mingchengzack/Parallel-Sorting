@@ -7,14 +7,20 @@ endif
 # Compiler
 CXX := g++
 CXX_FLAGS := -Wall -Werror -std=c++11
+CXX_OPENMP := icpc -openmp
 
 # Current directory
 CUR_PWD := $(shell pwd)
 
 all: $(patsubst ./serial/%.cpp, ./bin/%.out, $(wildcard ./serial/*.cpp)) \
-	$(patsubst ./test/%.cpp, ./bin/%.out, $(wildcard ./test/*.cpp))
+	$(patsubst ./test/%.cpp, ./bin/%.out, $(wildcard ./test/*.cpp)) \
+	$(patsubst ./parallel/%.cpp, ./bin/%.out, $(wildcard ./parallel/*.cpp))
 
 # Rule for programs
+./bin/%.out: ./parallel/%.cpp
+	@echo "MAKE     $@"
+	$(Q)$(CXX_OPENMP) $(CXX_FLAGS) -o $@ $<
+
 ./bin/%.out: ./serial/%.cpp
 	@echo "MAKE     $@"
 	$(Q)$(CXX) $(CXX_FLAGS) -o $@ $<
