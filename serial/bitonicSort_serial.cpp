@@ -1,5 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
+#include <omp.h>
 
 // Swap in the given direction
 void compSwap(std::vector<int> &arr, int i, int j, bool dir) {
@@ -55,10 +57,21 @@ void bitonicSort(std::vector<int> &arr) {
 }
 
 int main() {
-  std::vector<int> arr{4, 2, 1, 100, 3, 9, 1000, 5, 7, -1, -2};
-  bitonicSort(arr);
-  for (unsigned i = 0; i < arr.size(); i++) {
-    std::cout << arr[i] << ",";
+  std::vector<int> arr;
+  std::ifstream myfile ("arrays/100000.txt");
+
+  int e;
+  while (myfile >> e) {
+    arr.push_back(e);
   }
-  std::cout << std::endl;
+
+  double start = omp_get_wtime();
+  bitonicSort(arr);
+  double end = omp_get_wtime();
+  double time = end - start;
+  std::cout << "Time for execution: " << time * 1000 << " miliseconds." << std::endl;  
+//for (unsigned i = 0; i < arr.size(); i++) {
+    //std::cout << arr[i] << ",";
+  //}
+  //std::cout << std::endl;
 }

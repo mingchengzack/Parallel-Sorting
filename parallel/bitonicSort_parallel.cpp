@@ -5,6 +5,7 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <fstream>
 #include <vector>
 
 using namespace std;
@@ -32,14 +33,24 @@ void bitonicMerge(vector<int> &arr, int l, int cnt, bool dir) {
   }
 
   int k = greatestPowerOfTwoLessThan(cnt);
+  int i;
 
-#pragma omp parallel for shared(arr, l, dir, k) private(i)
-  for (int i = l; i < l + cnt - k; i++) {
-    compSwap(arr, i, i + k, dir);
+  #pragma omp parallel
+  {
+    #pragma omp for schedule(static) nowait
+    for (i = l; i < l + cnt - k; i++) {
+      compSwap(arr, i, i + k, dir);
+    }
+
+    #pragma omp single
+    {
+      #pragma omp task
+        bitonicMerge(arr, l, k, dir);
+
+      #pragma omp task
+        bitonicMerge(arr, l + k, cnt - k, dir);
+    }
   }
-
-  bitonicMerge(arr, l, k, dir);
-  bitonicMerge(arr, l + k, cnt - k, dir);
 }
 
 void bitonicSortHelper(vector<int> &arr, int l, int cnt, bool dir) {
@@ -51,29 +62,50 @@ void bitonicSortHelper(vector<int> &arr, int l, int cnt, bool dir) {
   int k = cnt / 2;
 
   // Sort in ascending order
-  bitonicSortHelper(arr, l, k, !dir);
+  #pragma omp task
+    bitonicSortHelper(arr, l, k, !dir);
 
   // Sort in descending order
-  bitonicSortHelper(arr, l + k, cnt - k, dir);
+  #pragma omp task
+    bitonicSortHelper(arr, l + k, cnt - k, dir);
 
   // Merge sequence in ascending order
+  #pragma omp taskwait
   bitonicMerge(arr, l, cnt, dir);
 }
 
-void bitonicSort(vector<int> &arr) {
-  bitonicSortHelper(arr, 0, arr.size(), true);
+void bitonicSort(vector<int> &arr, int p) {
+  #pragma omp parallel num_threads(p)
+  {
+    #pragma omp single
+      cout << "Num of threads: " << omp_get_num_threads() << endl;
+    #pragma omp single
+      bitonicSortHelper(arr, 0, arr.size(), true);
+  }
 }
 
-int main() {
-  std::vector<int> arr{4, 2, 1, 100, 3, 9, 1000, 5, 7, -1, -2};
+int main(int argc, char **argv) {
+  std::vector<int> arr;
+  ifstream myfile ("arrays/100000.txt");
+  
+  int e;
+  while (myfile >> e) {
+    arr.push_back(e);
+  }
+
+  int p = 4;
+  if (argc >= 2) {
+    p = min(stoi(argv[1]), 24);
+  }
+	
   double start = omp_get_wtime();
-  bitonicSort(arr);
+  bitonicSort(arr, p);
   double end = omp_get_wtime();
   double time = end - start;
   cout << "Time for execution: " << time * 1000 << " miliseconds." << endl;
-
-  for (unsigned i = 0; i < arr.size(); i++) {
-    std::cout << arr[i] << ",";
-  }
-  std::cout << std::endl;
+  
+  //for (unsigned i = 0; i < arr.size(); i++) {
+    //std::cout << arr[i] << ",";
+ // }
+  //std::cout << std::endl;
 }
