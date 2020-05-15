@@ -1,3 +1,4 @@
+#include <iostream>
 #include <vector>
 
 void merge(std::vector<int> &arr, int l, int r, int m) {
@@ -51,4 +52,13 @@ void mergeSortHelper(std::vector<int> &arr, int l, int r) {
 
 void mergeSort(std::vector<int> &arr) {
   mergeSortHelper(arr, 0, arr.size() - 1);
+}
+
+int main() {
+  std::vector<int> arr{4, 2, 1, 100, 3, 9, 1000, 5, 7, -1, -2};
+  mergeSort(arr);
+  for (int i = 0; i < arr.size(); i++) {
+    std::cout << arr[i] << ",";
+  }
+  std::cout << std::endl;
 }

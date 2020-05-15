@@ -1,7 +1,16 @@
+// Parallel bitonic sort
+#include <omp.h>
+
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
+#include <iostream>
 #include <vector>
 
+using namespace std;
+
 // Swap in the given direction
-void compSwap(std::vector<int> &arr, int i, int j, bool dir) {
+void compSwap(vector<int> &arr, int i, int j, bool dir) {
   bool isGreater = arr[i] > arr[j];
   if (dir == isGreater) {
     std::swap(arr[i], arr[j]);
@@ -17,7 +26,7 @@ int greatestPowerOfTwoLessThan(int cnt) {
 }
 
 // Merge two sequences
-void bitonicMerge(std::vector<int> &arr, int l, int cnt, bool dir) {
+void bitonicMerge(vector<int> &arr, int l, int cnt, bool dir) {
   if (cnt <= 1) {
     return;
   }
@@ -31,7 +40,7 @@ void bitonicMerge(std::vector<int> &arr, int l, int cnt, bool dir) {
   bitonicMerge(arr, l + k, cnt - k, dir);
 }
 
-void bitonicSortHelper(std::vector<int> &arr, int l, int cnt, bool dir) {
+void bitonicSortHelper(vector<int> &arr, int l, int cnt, bool dir) {
   // Base case
   if (cnt <= 1) {
     return;
@@ -49,6 +58,8 @@ void bitonicSortHelper(std::vector<int> &arr, int l, int cnt, bool dir) {
   bitonicMerge(arr, l, cnt, dir);
 }
 
-void bitonicSort(std::vector<int> &arr) {
+void bitonicSort(vector<int> &arr) {
   bitonicSortHelper(arr, 0, arr.size(), true);
 }
+
+int main() {}

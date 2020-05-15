@@ -7,35 +7,28 @@ endif
 # Compiler
 CXX := g++
 CXX_FLAGS := -Wall -Werror -std=c++11
-THREAD_FLAG := -pthread
-
-# Current directory
-CUR_PWD := $(shell pwd)
 
 # Include path
-SORTING_PATH := ./serial
+SERIAL_CPP := ./serial/bitonicSort_serial.cpp \
+ 			  ./serial/mergeSort_serial.cpp \
+			  ./serial/quickSort_serial.cpp
+PARALLEL_CPP := ./parallel/bitonicSort_parallel.cpp \
+ 			  	./parallel/mergeSort_parallel.cpp \
+			  	./parallel/quickSort_parallel.cpp
 TEST_DIR := ./test
 OBJ_DIR = ./objs
-INCLUDE := -I $(SORTING_PATH)
 
 # Main program
-program := bin/main.out
-objs := $(OBJ_DIR)/main.o
-SORTING_HPP := $(SORTING_PATH)/mergeSort.hpp \
-			   $(SORTING_PATH)/bitonicSort.hpp \
-			   $(SORTING_PATH)/quickSort.hpp
+program := bin/bitonicSort_serial.out \
+		   bin/mergeSort_serial.out \
+		   bin/quickSort_serial.out
 
 all: $(program)
 
-# Rule for main program
-$(program): $(objs)
+# Rule for programs
+$(program): $(SERIAL_CPP)
 	@echo "MAKE     $@"
 	$(Q)$(CXX) $(CXX_FLAGS) -o $@ $<
-
-# Generic rule for compiling objects
-$(OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp $(SORTING_HPP)
-	@echo "CXX       $@"
-	$(Q)$(CXX) $(CXX_FLAGS) $(INCLUDE) -c -o $@ $<
 
 # Cleaning rule
 clean:
