@@ -32,6 +32,8 @@ void bitonicMerge(vector<int> &arr, int l, int cnt, bool dir) {
   }
 
   int k = greatestPowerOfTwoLessThan(cnt);
+
+#pragma omp parallel for shared(arr, l, dir, k) private(i)
   for (int i = l; i < l + cnt - k; i++) {
     compSwap(arr, i, i + k, dir);
   }
@@ -62,4 +64,11 @@ void bitonicSort(vector<int> &arr) {
   bitonicSortHelper(arr, 0, arr.size(), true);
 }
 
-int main() {}
+int main() {
+  std::vector<int> arr{4, 2, 1, 100, 3, 9, 1000, 5, 7, -1, -2};
+  double start = omp_get_wtime();
+  bitonicSort(arr);
+  double end = omp_get_wtime();
+  double time = end - start;
+  cout << "Time for execution: " << time * 1000 << " miliseconds." << endl;
+}

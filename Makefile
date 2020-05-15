@@ -8,25 +8,18 @@ endif
 CXX := g++
 CXX_FLAGS := -Wall -Werror -std=c++11
 
-# Include path
-SERIAL_CPP := ./serial/%.cpp
-PARALLEL_CPP := ./parallel/bitonicSort_parallel.cpp \
- 			  	./parallel/mergeSort_parallel.cpp \
-			  	./parallel/quickSort_parallel.cpp
-TEST_DIR := ./test
-OBJ_DIR = ./objs
-
 # Current directory
 CUR_PWD := $(shell pwd)
 
-all: $(patsubst ./serial/%.cpp, ./bin/%.out, $(wildcard ./serial/*.cpp)) $(patsubst ./test/%.cpp, ./bin/%.out, $(wildcard ./test/*.cpp))
+all: $(patsubst ./serial/%.cpp, ./bin/%.out, $(wildcard ./serial/*.cpp)) \
+	$(patsubst ./test/%.cpp, ./bin/%.out, $(wildcard ./test/*.cpp))
 
 # Rule for programs
-./bin/%.out: ./serial/%.cpp Makefile
+./bin/%.out: ./serial/%.cpp
 	@echo "MAKE     $@"
 	$(Q)$(CXX) $(CXX_FLAGS) -o $@ $<
 
-./bin/%.out: ./test/%.cpp Makefile
+./bin/%.out: ./test/%.cpp
 	@echo "MAKE     $@"
 	$(Q)$(CXX) $(CXX_FLAGS) -o $@ $<
 
