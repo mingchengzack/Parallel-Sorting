@@ -71,4 +71,9 @@ int main() {
   double end = omp_get_wtime();
   double time = end - start;
   cout << "Time for execution: " << time * 1000 << " miliseconds." << endl;
+
+  for (unsigned i = 0; i < arr.size(); i++) {
+    std::cout << arr[i] << ",";
+  }
+  std::cout << std::endl;
 }
