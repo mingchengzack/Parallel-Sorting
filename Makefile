@@ -9,30 +9,30 @@ CXX := g++
 CXX_FLAGS := -Wall -Werror -std=c++11
 
 # Include path
-SERIAL_CPP := ./serial/bitonicSort_serial.cpp \
- 			  ./serial/mergeSort_serial.cpp \
-			  ./serial/quickSort_serial.cpp
+SERIAL_CPP := ./serial/%.cpp
 PARALLEL_CPP := ./parallel/bitonicSort_parallel.cpp \
  			  	./parallel/mergeSort_parallel.cpp \
 			  	./parallel/quickSort_parallel.cpp
 TEST_DIR := ./test
 OBJ_DIR = ./objs
 
-# Main program
-program := bin/bitonicSort_serial.out \
-		   bin/mergeSort_serial.out \
-		   bin/quickSort_serial.out
+# Current directory
+CUR_PWD := $(shell pwd)
 
-all: $(program)
+all: $(patsubst ./serial/%.cpp, ./bin/%.out, $(wildcard ./serial/*.cpp)) $(patsubst ./test/%.cpp, ./bin/%.out, $(wildcard ./test/*.cpp))
 
 # Rule for programs
-$(program): $(SERIAL_CPP)
+./bin/%.out: ./serial/%.cpp Makefile
+	@echo "MAKE     $@"
+	$(Q)$(CXX) $(CXX_FLAGS) -o $@ $<
+
+./bin/%.out: ./test/%.cpp Makefile
 	@echo "MAKE     $@"
 	$(Q)$(CXX) $(CXX_FLAGS) -o $@ $<
 
 # Cleaning rule
 clean:
 	@echo "CLEAN    $(CUR_PWD)"
-	$(Q)rm -f $(program) $(objs)
+	$(Q)rm -f bin/*
 
-.PHONY: clean $(program)
+.PHONY: clean bin/*
