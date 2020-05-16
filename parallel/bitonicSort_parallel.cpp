@@ -7,6 +7,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cassert>
+#include <algorithm>
 
 using namespace std;
 
@@ -128,13 +130,15 @@ void bitonicSort(vector<int> &arr, int p) {
 }
 
 int main(int argc, char **argv) {
-  std::vector<int> arr;
-  ifstream myfile ("arrays/100000.txt");
+  vector<int> arr;
+  ifstream myfile;
+  myfile.open("arrays/1000000.txt");
   
   int e;
   while (myfile >> e) {
     arr.push_back(e);
   }
+  myfile.close();
 
   int p = 4;
   if (argc >= 2) {
@@ -147,8 +151,19 @@ int main(int argc, char **argv) {
   double time = end - start;
   cout << "Time for execution: " << time * 1000 << " miliseconds." << endl;
   
-  //for (unsigned i = 0; i < arr.size(); i++) {
-    //std::cout << arr[i] << ",";
-  //}
-  //std::cout << std::endl;
+  myfile.open("arrays/1000000.txt");
+  vector<int> sorted;
+
+  while (myfile >> e) {
+    sorted.push_back(e);
+  }
+  myfile.close();
+
+  // Sort the arry using std::sort
+  // and compare it with my bitonic sort for correctness
+  sort(sorted.begin(), sorted.end());
+ 
+  for (unsigned i = 0; i < arr.size(); i++) {
+    assert(arr[i] == sorted[i]);
+  }
 }
