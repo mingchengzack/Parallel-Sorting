@@ -2,15 +2,7 @@
 
 #include <fstream>
 #include <iostream>
-#include <random>
 #include <vector>
-
-int getRandomPivot(int l, int r) {
-  std::random_device rand_dev;
-  std::mt19937 generator(rand_dev());
-  std::uniform_int_distribution<int> distr(l, r);
-  return distr(generator);
-}
 
 int partition(std::vector<int> &arr, int l, int r, int pivot) {
   int partitionIdx = l - 1;
@@ -38,7 +30,7 @@ void quickSortHelper(std::vector<int> &arr, int l, int r) {
     return;
   }
 
-  int pivot = getRandomPivot(l, r);
+  int pivot = l;
   int partitionIdx = partition(arr, l, r, pivot);
 
   quickSortHelper(arr, l, partitionIdx - 1);
@@ -64,8 +56,8 @@ int main() {
   double time = end - start;
   std::cout << "Time for execution: " << time * 1000 << " miliseconds."
             << std::endl;
-  // for (unsigned i = 0; i < arr.size(); i++) {
-  // std::cout << arr[i] << ",";
+  //for (unsigned i = 0; i < arr.size(); i++) {
+    //std::cout << arr[i] << ",";
   //}
-  // std::cout << std::endl;
+  //std::cout << std::endl;
 }
