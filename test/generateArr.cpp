@@ -14,7 +14,7 @@ int main() {
     myfile.open("./arrays/" + std::to_string(n) + ".txt");
 
     for (int i = 0; i < n; i++) {
-      myfile << rand() % 500 << " ";
+      myfile << rand() % n << " ";
     }
   }
 }

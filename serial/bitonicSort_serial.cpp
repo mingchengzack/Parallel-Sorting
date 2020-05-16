@@ -1,7 +1,8 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
 #include <omp.h>
+
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 // Swap in the given direction
 void compSwap(std::vector<int> &arr, int i, int j, bool dir) {
@@ -26,7 +27,7 @@ void bitonicMerge(std::vector<int> &arr, int l, int cnt, bool dir) {
   }
 
   int k = greatestPowerOfTwoLessThan(cnt);
-  
+
   for (int i = l; i < l + cnt - k; i++) {
     compSwap(arr, i, i + k, dir);
   }
@@ -59,7 +60,7 @@ void bitonicSort(std::vector<int> &arr) {
 
 int main() {
   std::vector<int> arr;
-  std::ifstream myfile ("arrays/100000.txt");
+  std::ifstream myfile("arrays/100000.txt");
 
   int e;
   while (myfile >> e) {
@@ -70,9 +71,10 @@ int main() {
   bitonicSort(arr);
   double end = omp_get_wtime();
   double time = end - start;
-  std::cout << "Time for execution: " << time * 1000 << " miliseconds." << std::endl;  
-//for (unsigned i = 0; i < arr.size(); i++) {
-    //std::cout << arr[i] << ",";
+  std::cout << "Time for execution: " << time * 1000 << " miliseconds."
+            << std::endl;
+  // for (unsigned i = 0; i < arr.size(); i++) {
+  // std::cout << arr[i] << ",";
   //}
-  //std::cout << std::endl;
+  // std::cout << std::endl;
 }
