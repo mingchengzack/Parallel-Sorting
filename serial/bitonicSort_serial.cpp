@@ -26,6 +26,7 @@ void bitonicMerge(std::vector<int> &arr, int l, int cnt, bool dir) {
   }
 
   int k = greatestPowerOfTwoLessThan(cnt);
+  
   for (int i = l; i < l + cnt - k; i++) {
     compSwap(arr, i, i + k, dir);
   }

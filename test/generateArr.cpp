@@ -6,9 +6,9 @@
 int main() {
   time_t t;
   srand((unsigned)time(&t));
-  int sizes[3] = {1000, 10000, 100000};
+  int sizes[4] = {1000, 10000, 100000, 1000000};
 
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 4; i++) {
     int n = sizes[i];
     std::ofstream myfile;
     myfile.open("./arrays/" + std::to_string(n) + ".txt");
