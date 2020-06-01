@@ -43,7 +43,7 @@ void quickSort(std::vector<int> &arr) {
 
 int main() {
   std::vector<int> arr;
-  std::ifstream myfile("arrays/100000.txt");
+  std::ifstream myfile("arrays/1000000.txt");
 
   int e;
   while (myfile >> e) {
