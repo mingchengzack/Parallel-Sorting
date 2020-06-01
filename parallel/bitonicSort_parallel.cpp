@@ -114,7 +114,7 @@ void openmp_bitonicSortHelper(vector<int> &arr, int l, int cnt, bool dir, int p)
   openmp_bitonicMerge(arr, l, cnt, dir, p);
 }
 
-void bitonicSort(vector<int> &arr, int p) {
+void openmp_bitonicSort(vector<int> &arr, int p) {
   if (p == 1) {
     cout << "Num of threads: " << omp_get_num_threads() << endl;
     bitonicSortHelper(arr, 0, arr.size(), true);
@@ -132,7 +132,8 @@ void bitonicSort(vector<int> &arr, int p) {
 int main(int argc, char **argv) {
   vector<int> arr;
   ifstream myfile;
-  myfile.open("arrays/1000000.txt");
+  char filename[] = "arrays/1000000.txt";
+  myfile.open(filename);
   
   int e;
   while (myfile >> e) {
@@ -146,12 +147,12 @@ int main(int argc, char **argv) {
   }
   
   double start = omp_get_wtime();
-  bitonicSort(arr, p);
+  openmp_bitonicSort(arr, p);
   double end = omp_get_wtime();
   double time = end - start;
   cout << "Time for execution: " << time * 1000 << " miliseconds." << endl;
   
-  myfile.open("arrays/1000000.txt");
+  myfile.open(filename);
   vector<int> sorted;
 
   while (myfile >> e) {
