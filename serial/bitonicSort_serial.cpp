@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
   ifstream myfile;
   string filename = "arrays/1000000.txt";
   if (argc >= 2) {
-    filename = "arrays/" + string(argv[2]) + ".txt";
+    filename = "arrays/" + string(argv[1]) + ".txt";
   }
 
   myfile.open(filename);

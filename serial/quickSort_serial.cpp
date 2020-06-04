@@ -8,27 +8,27 @@
 
 using namespace std;
 
-int partition(std::vector<int> &arr, int l, int r, int pivot) {
+int partition(vector<int> &arr, int l, int r, int pivot) {
   int partitionIdx = l - 1;
   int pivotElement = arr[pivot];
 
   // Swap pivot to the right
-  std::swap(arr[r], arr[pivot]);
+  swap(arr[r], arr[pivot]);
 
   // Move elements that are smaller than pivot to left
   for (int i = l; i < r; i++) {
     if (arr[i] <= pivotElement) {
-      std::swap(arr[i], arr[++partitionIdx]);
+      swap(arr[i], arr[++partitionIdx]);
     }
   }
 
   // Swap pivot back
-  std::swap(arr[r], arr[++partitionIdx]);
+  swap(arr[r], arr[++partitionIdx]);
 
   return partitionIdx;
 }
 
-void quickSortHelper(std::vector<int> &arr, int l, int r) {
+void quickSortHelper(vector<int> &arr, int l, int r) {
   // Base case
   if (l >= r) {
     return;
@@ -41,16 +41,14 @@ void quickSortHelper(std::vector<int> &arr, int l, int r) {
   quickSortHelper(arr, partitionIdx + 1, r);
 }
 
-void quickSort(std::vector<int> &arr) {
-  quickSortHelper(arr, 0, arr.size() - 1);
-}
+void quickSort(vector<int> &arr) { quickSortHelper(arr, 0, arr.size() - 1); }
 
 int main(int argc, char **argv) {
   vector<int> arr;
   ifstream myfile;
   string filename = "arrays/1000000.txt";
   if (argc >= 2) {
-    filename = "arrays/" + string(argv[2]) + ".txt";
+    filename = "arrays/" + string(argv[1]) + ".txt";
   }
 
   myfile.open(filename);
