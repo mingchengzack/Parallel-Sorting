@@ -1,14 +1,14 @@
 // Parallel merge sort
 #include <omp.h>
 
+#include <algorithm>
+#include <cassert>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
 #include <vector>
-#include <cassert>
-#include <algorithm>
 
 using namespace std;
 
@@ -22,16 +22,16 @@ void merge(vector<int> &arr, int l, int r, int m) {
   for (int i = 0; i < n1; i++) {
     L[i] = arr[i + l];
   }
-  
+
   // Copy right array
   for (int i = 0; i < n2; i++) {
     R[i] = arr[i + m + 1];
   }
-  
+
   // Merge two arrays
   int k = l;
   int idxL = 0, idxR = 0;
-  
+
   while (idxL < n1 && idxR < n2) {
     if (L[idxL] < R[idxR]) {
       arr[k++] = L[idxL++];
@@ -39,26 +39,26 @@ void merge(vector<int> &arr, int l, int r, int m) {
       arr[k++] = R[idxR++];
     }
   }
-  
+
   // Add remaining elements
   while (idxL < n1) {
     arr[k++] = L[idxL++];
   }
-  
+
   while (idxR < n2) {
     arr[k++] = R[idxR++];
   }
 }
-  
+
 // Serial version of merge sort helper
 void mergeSortHelper(vector<int> &arr, int l, int r) {
   // Base case
   if (l == r) {
     return;
   }
-  
+
   int m = l + (r - l) / 2;
-  
+
   mergeSortHelper(arr, l, m);
   mergeSortHelper(arr, m + 1, r);
   merge(arr, l, r, m);
@@ -70,22 +70,22 @@ void openmp_merge(vector<int> &arr, int l, int r, int m, int p) {
   int n2 = r - m;
   vector<int> L(n1, 0), R(n2, 0);
 
-  #pragma omp parallel num_threads(p)
+#pragma omp parallel num_threads(p)
   {
-    // Copy left array 
-    #pragma omp for schedule(static) nowait
+// Copy left array
+#pragma omp for schedule(static) nowait
     for (int i = 0; i < n1; i++) {
       L[i] = arr[i + l];
     }
-  
-    // Copy right array
-    #pragma omp for
+
+// Copy right array
+#pragma omp for
     for (int i = 0; i < n2; i++) {
       R[i] = arr[i + m + 1];
     }
 
-    // Merge two arrays
-    #pragma omp for
+// Merge two arrays
+#pragma omp for
     for (int k = l, idxL = 0, idxR = 0; k <= r; k++) {
       if (idxL == n1) {
         arr[k] = R[idxR++];
@@ -109,19 +109,18 @@ void openmp_mergeSortHelper(vector<int> &arr, int l, int r, int p) {
     mergeSortHelper(arr, l, r);
     return;
   }
-  
+
   int m = l + (r - l) / 2;
 
-  #pragma omp task
-    openmp_mergeSortHelper(arr, l, m, p);
-  
-  #pragma omp task
-    openmp_mergeSortHelper(arr, m + 1, r, p);
-  
-  #pragma omp taskwait
-    openmp_merge(arr, l, r, m, p);
-}
+#pragma omp task
+  openmp_mergeSortHelper(arr, l, m, p);
 
+#pragma omp task
+  openmp_mergeSortHelper(arr, m + 1, r, p);
+
+#pragma omp taskwait
+  openmp_merge(arr, l, r, m, p);
+}
 
 // Parallel version of merge sort
 void openmp_mergeSort(vector<int> &arr, int p) {
@@ -129,12 +128,12 @@ void openmp_mergeSort(vector<int> &arr, int p) {
     cout << "Num of threads: " << omp_get_num_threads() << endl;
     mergeSortHelper(arr, 0, arr.size() - 1);
   } else {
-    #pragma omp parallel num_threads(p)
+#pragma omp parallel num_threads(p)
     {
-      #pragma omp single
-        cout << "Num of threads: " << omp_get_num_threads() << endl;
-      #pragma omp single
-        openmp_mergeSortHelper(arr, 0, arr.size() - 1, p);
+#pragma omp single
+      cout << "Num of threads: " << omp_get_num_threads() << endl;
+#pragma omp single
+      openmp_mergeSortHelper(arr, 0, arr.size() - 1, p);
     }
   }
 }
@@ -142,26 +141,29 @@ void openmp_mergeSort(vector<int> &arr, int p) {
 int main(int argc, char **argv) {
   vector<int> arr;
   ifstream myfile;
-  char filename[] = "arrays/1000000.txt";
+  string filename = "arrays/1000000.txt";
+  int p = 4;
+  if (argc >= 2) {
+    p = min(stoi(argv[1]), 24);
+    if (argc >= 3) {
+      filename = "arrays/" + string(argv[2]) + ".txt";
+    }
+  }
+
   myfile.open(filename);
-  
   int e;
   while (myfile >> e) {
     arr.push_back(e);
   }
   myfile.close();
 
-  int p = 4;
-  if (argc >= 2) {
-    p = min(stoi(argv[1]), 24);
-  }
-  
   double start = omp_get_wtime();
   openmp_mergeSort(arr, p);
   double end = omp_get_wtime();
   double time = end - start;
+  cout << "Running on " << filename << endl;
   cout << "Time for execution: " << time * 1000 << " miliseconds." << endl;
-  
+
   myfile.open(filename);
   vector<int> sorted;
 
@@ -171,10 +173,12 @@ int main(int argc, char **argv) {
   myfile.close();
 
   // Sort the arry using std::sort
-  // and compare it with my bitonic sort for correctness
+  // and compare it with my sort for correctness
   sort(sorted.begin(), sorted.end());
-        
+
   for (unsigned i = 0; i < arr.size(); i++) {
     assert(arr[i] == sorted[i]);
   }
+
+  cout << "Passed test against std::sort" << endl;
 }

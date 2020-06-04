@@ -1,14 +1,14 @@
 // Parallel quick sort
 #include <omp.h>
 
+#include <algorithm>
+#include <cassert>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
 #include <vector>
-#include <cassert>
-#include <algorithm>
 
 using namespace std;
 
@@ -32,7 +32,7 @@ int partition(vector<int> &arr, int l, int r, int pivot) {
   return partitionIdx;
 }
 
-// Serial version of quick sort helper 
+// Serial version of quick sort helper
 void quickSortHelper(vector<int> &arr, int l, int r) {
   // Base case
   if (l >= r) {
@@ -57,11 +57,11 @@ void openmp_quickSortHelper(vector<int> &arr, int l, int r, int p) {
   int pivot = l;
   int partitionIdx = partition(arr, l, r, pivot);
 
-  #pragma omp task
-    openmp_quickSortHelper(arr, l, partitionIdx - 1, p);
-  
-  #pragma omp task
-    openmp_quickSortHelper(arr, partitionIdx + 1, r, p);
+#pragma omp task
+  openmp_quickSortHelper(arr, l, partitionIdx - 1, p);
+
+#pragma omp task
+  openmp_quickSortHelper(arr, partitionIdx + 1, r, p);
 }
 
 // Parallel version of quick sort
@@ -70,12 +70,12 @@ void openmp_quickSort(vector<int> &arr, int p) {
     cout << "Num of threads: " << omp_get_num_threads() << endl;
     quickSortHelper(arr, 0, arr.size() - 1);
   } else {
-    #pragma omp parallel num_threads(p)
+#pragma omp parallel num_threads(p)
     {
-      #pragma omp single
-        cout << "Num of threads: " << omp_get_num_threads() << endl;
-      #pragma omp single
-        openmp_quickSortHelper(arr, 0, arr.size() - 1, p);
+#pragma omp single
+      cout << "Num of threads: " << omp_get_num_threads() << endl;
+#pragma omp single
+      openmp_quickSortHelper(arr, 0, arr.size() - 1, p);
     }
   }
 }
@@ -83,26 +83,29 @@ void openmp_quickSort(vector<int> &arr, int p) {
 int main(int argc, char **argv) {
   vector<int> arr;
   ifstream myfile;
-  char filename[] = "arrays/1000000.txt";
+  string filename = "arrays/1000000.txt";
+  int p = 4;
+  if (argc >= 2) {
+    p = min(stoi(argv[1]), 24);
+    if (argc >= 3) {
+      filename = "arrays/" + string(argv[2]) + ".txt";
+    }
+  }
+
   myfile.open(filename);
-  
   int e;
   while (myfile >> e) {
     arr.push_back(e);
   }
   myfile.close();
 
-  int p = 4;
-  if (argc >= 2) {
-    p = min(stoi(argv[1]), 24);
-  }
-  
   double start = omp_get_wtime();
   openmp_quickSort(arr, p);
   double end = omp_get_wtime();
   double time = end - start;
+  cout << "Running on " << filename << endl;
   cout << "Time for execution: " << time * 1000 << " miliseconds." << endl;
-  
+
   myfile.open(filename);
   vector<int> sorted;
 
@@ -112,10 +115,12 @@ int main(int argc, char **argv) {
   myfile.close();
 
   // Sort the arry using std::sort
-  // and compare it with my bitonic sort for correctness
-  sort(sorted.begin(), sorted.end());             
-  
+  // and compare it with my sort for correctness
+  sort(sorted.begin(), sorted.end());
+
   for (unsigned i = 0; i < arr.size(); i++) {
     assert(arr[i] == sorted[i]);
   }
+
+  cout << "Passed test against std::sort" << endl;
 }

@@ -1,14 +1,14 @@
 // Parallel bitonic sort
 #include <omp.h>
 
+#include <algorithm>
+#include <cassert>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
 #include <vector>
-#include <cassert>
-#include <algorithm>
 
 using namespace std;
 
@@ -50,7 +50,7 @@ void bitonicSortHelper(std::vector<int> &arr, int l, int cnt, bool dir) {
   if (cnt <= 1) {
     return;
   }
-  
+
   int k = cnt / 2;
 
   // Sort in ascending order
@@ -73,26 +73,27 @@ void openmp_bitonicMerge(vector<int> &arr, int l, int cnt, bool dir, int p) {
   int k = greatestPowerOfTwoLessThan(cnt);
   int i;
 
-  #pragma omp parallel num_threads(p)
+#pragma omp parallel num_threads(p)
   {
-    #pragma omp for schedule(static) nowait
+#pragma omp for schedule(static) nowait
     for (i = l; i < l + cnt - k; i++) {
       compSwap(arr, i, i + k, dir);
     }
 
-    #pragma omp single
+#pragma omp single
     {
-      #pragma omp task
-        openmp_bitonicMerge(arr, l, k, dir, p);
+#pragma omp task
+      openmp_bitonicMerge(arr, l, k, dir, p);
 
-      #pragma omp task
-        openmp_bitonicMerge(arr, l + k, cnt - k, dir, p);
+#pragma omp task
+      openmp_bitonicMerge(arr, l + k, cnt - k, dir, p);
     }
   }
 }
 
 // Parallel version of bitonic sort
-void openmp_bitonicSortHelper(vector<int> &arr, int l, int cnt, bool dir, int p) {
+void openmp_bitonicSortHelper(vector<int> &arr, int l, int cnt, bool dir,
+                              int p) {
   // If the size is less than threshold, we use serial version
   if (cnt <= 200) {
     bitonicSortHelper(arr, l, cnt, dir);
@@ -101,16 +102,16 @@ void openmp_bitonicSortHelper(vector<int> &arr, int l, int cnt, bool dir, int p)
 
   int k = cnt / 2;
 
-  // Sort in ascending order
-  #pragma omp task
-    openmp_bitonicSortHelper(arr, l, k, !dir, p);
+// Sort in ascending order
+#pragma omp task
+  openmp_bitonicSortHelper(arr, l, k, !dir, p);
 
-  // Sort in descending order
-  #pragma omp task
-    openmp_bitonicSortHelper(arr, l + k, cnt - k, dir, p);
+// Sort in descending order
+#pragma omp task
+  openmp_bitonicSortHelper(arr, l + k, cnt - k, dir, p);
 
-  // Merge sequence in ascending order
-  #pragma omp taskwait
+// Merge sequence in ascending order
+#pragma omp taskwait
   openmp_bitonicMerge(arr, l, cnt, dir, p);
 }
 
@@ -119,12 +120,12 @@ void openmp_bitonicSort(vector<int> &arr, int p) {
     cout << "Num of threads: " << omp_get_num_threads() << endl;
     bitonicSortHelper(arr, 0, arr.size(), true);
   } else {
-    #pragma omp parallel num_threads(p)
+#pragma omp parallel num_threads(p)
     {
-      #pragma omp single
-        cout << "Num of threads: " << omp_get_num_threads() << endl;
-      #pragma omp single
-        openmp_bitonicSortHelper(arr, 0, arr.size(), true, p);
+#pragma omp single
+      cout << "Num of threads: " << omp_get_num_threads() << endl;
+#pragma omp single
+      openmp_bitonicSortHelper(arr, 0, arr.size(), true, p);
     }
   }
 }
@@ -132,26 +133,29 @@ void openmp_bitonicSort(vector<int> &arr, int p) {
 int main(int argc, char **argv) {
   vector<int> arr;
   ifstream myfile;
-  char filename[] = "arrays/1000000.txt";
+  string filename = "arrays/1000000.txt";
+  int p = 4;
+  if (argc >= 2) {
+    p = min(stoi(argv[1]), 24);
+    if (argc >= 3) {
+      filename = "arrays/" + string(argv[2]) + ".txt";
+    }
+  }
+
   myfile.open(filename);
-  
   int e;
   while (myfile >> e) {
     arr.push_back(e);
   }
   myfile.close();
 
-  int p = 4;
-  if (argc >= 2) {
-    p = min(stoi(argv[1]), 24);
-  }
-  
   double start = omp_get_wtime();
   openmp_bitonicSort(arr, p);
   double end = omp_get_wtime();
   double time = end - start;
+  cout << "Running on " << filename << endl;
   cout << "Time for execution: " << time * 1000 << " miliseconds." << endl;
-  
+
   myfile.open(filename);
   vector<int> sorted;
 
@@ -161,10 +165,12 @@ int main(int argc, char **argv) {
   myfile.close();
 
   // Sort the arry using std::sort
-  // and compare it with my bitonic sort for correctness
+  // and compare it with my sort for correctness
   sort(sorted.begin(), sorted.end());
- 
+
   for (unsigned i = 0; i < arr.size(); i++) {
     assert(arr[i] == sorted[i]);
   }
+
+  cout << "Passed test against std::sort" << endl;
 }

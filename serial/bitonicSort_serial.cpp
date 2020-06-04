@@ -1,14 +1,18 @@
 #include <omp.h>
 
+#include <algorithm>
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <vector>
 
+using namespace std;
+
 // Swap in the given direction
-void compSwap(std::vector<int> &arr, int i, int j, bool dir) {
+void compSwap(vector<int> &arr, int i, int j, bool dir) {
   bool isGreater = arr[i] > arr[j];
   if (dir == isGreater) {
-    std::swap(arr[i], arr[j]);
+    swap(arr[i], arr[j]);
   }
 }
 
@@ -21,7 +25,7 @@ int greatestPowerOfTwoLessThan(int cnt) {
 }
 
 // Merge two sequences
-void bitonicMerge(std::vector<int> &arr, int l, int cnt, bool dir) {
+void bitonicMerge(vector<int> &arr, int l, int cnt, bool dir) {
   if (cnt <= 1) {
     return;
   }
@@ -36,7 +40,7 @@ void bitonicMerge(std::vector<int> &arr, int l, int cnt, bool dir) {
   bitonicMerge(arr, l + k, cnt - k, dir);
 }
 
-void bitonicSortHelper(std::vector<int> &arr, int l, int cnt, bool dir) {
+void bitonicSortHelper(vector<int> &arr, int l, int cnt, bool dir) {
   // Base case
   if (cnt <= 1) {
     return;
@@ -54,27 +58,47 @@ void bitonicSortHelper(std::vector<int> &arr, int l, int cnt, bool dir) {
   bitonicMerge(arr, l, cnt, dir);
 }
 
-void bitonicSort(std::vector<int> &arr) {
+void bitonicSort(vector<int> &arr) {
   bitonicSortHelper(arr, 0, arr.size(), true);
 }
 
-int main() {
-  std::vector<int> arr;
-  std::ifstream myfile("arrays/1000000.txt");
+int main(int argc, char **argv) {
+  vector<int> arr;
+  ifstream myfile;
+  string filename = "arrays/1000000.txt";
+  if (argc >= 2) {
+    filename = "arrays/" + string(argv[2]) + ".txt";
+  }
 
+  myfile.open(filename);
   int e;
   while (myfile >> e) {
     arr.push_back(e);
   }
+  myfile.close();
 
   double start = omp_get_wtime();
   bitonicSort(arr);
   double end = omp_get_wtime();
   double time = end - start;
-  std::cout << "Time for execution: " << time * 1000 << " miliseconds."
-            << std::endl;
-  // for (unsigned i = 0; i < arr.size(); i++) {
-  // std::cout << arr[i] << ",";
-  //}
-  // std::cout << std::endl;
+  cout << "Running on " << filename << endl;
+  cout << "Time for execution: " << time * 1000 << " miliseconds." << endl;
+
+  myfile.open(filename);
+  vector<int> sorted;
+
+  while (myfile >> e) {
+    sorted.push_back(e);
+  }
+  myfile.close();
+
+  // Sort the arry using std::sort
+  // and compare it with my sort for correctness
+  sort(sorted.begin(), sorted.end());
+
+  for (unsigned i = 0; i < arr.size(); i++) {
+    assert(arr[i] == sorted[i]);
+  }
+
+  cout << "Passed test against std::sort" << endl;
 }
