@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
   if (argc >= 2) {
     p = min(stoi(argv[1]), 24);
     if (argc >= 3) {
-      filename = "arrays/" + string(argv[1]) + ".txt";
+      filename = "arrays/" + string(argv[2]) + ".txt";
     }
   }
 
